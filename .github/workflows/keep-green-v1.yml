@@ -2,7 +2,7 @@ name: Keep Green
 
 on:
   schedule:
-    - cron: "*/5 * * * *" # Menjalankan workflow setiap 2 menit
+    - cron: "*/5 * * * *"
   push:
     branches:
       - master
