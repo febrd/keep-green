@@ -61,8 +61,15 @@ jobs:
       - name: Pull Latest Changes
         if: env.changes_detected == 'true'
         run: |
-          git pull origin master --rebase
-
+          set +e 
+          git pull origin master --rebase || {
+            echo "Conflict detected, resolving..."
+            git checkout --ours KEEP_GREEN_LOG
+            git add KEEP_GREEN_LOG
+            git rebase --continue
+          }
+          set -e
+          
       - name: Push Changes
         if: env.changes_detected == 'true'
         uses: ad-m/github-push-action@v0.6.0
