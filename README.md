@@ -21,47 +21,75 @@ Here are the main steps of the `keep-green.yml` configuration:
 name: Keep Green
 
 on:
+  schedule:
+    - cron: "*/5 * * * *" # Menjalankan workflow setiap 2 menit
   push:
     branches:
       - master
-  schedule:
-    - cron: "*/5 * * * *"
 
 jobs:
   auto_commit:
     runs-on: ubuntu-latest
+
     steps:
-      - name: DEBUG 
-        run: echo "::debug::Ref = ${{github.ref}}"
-      - uses: actions/checkout@v3      
+      - name: Debug Reference
+        run: echo "::debug::Ref = ${{ github.ref }}"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
         with:
-         persist-credentials: false
-         fetch-depth: 0
-      - name: Modify last update
+          persist-credentials: false
+          fetch-depth: 0 
+
+      - name: Modify Last Update
         run: |
-          d=`date '+%Y-%m-%dT%H:%M:%SZ'`
-          echo $d > KEEP_GREEN_LOG
-      - name: Commit changes
+          d=$(date '+%Y-%m-%dT%H:%M:%SZ')
+          echo "$d" > KEEP_GREEN_LOG
+
+      - name: Check for Changes
+        id: changes
         run: |
-          git config --local user.email "febridirgantara17@gmail.com"
-          git config --local user.name "febrd"
+          set +e 
+          git diff --exit-code > /dev/null
+          if [ $? -ne 0 ]; then
+            echo "changes_detected=true" >> $GITHUB_ENV
+          else
+            echo "changes_detected=false" >> $GITHUB_ENV
+          fi
+          set -e
+
+      - name: Commit Changes
+        if: env.changes_detected == 'true'
+        run: |
+          git config --local user.email "your@email.domain"
+          git config --local user.name "yourgithubusername"
           git add -A
-          arr[0]="febrd(v1): 😂 Keep Green"
-          arr[1]="febrd(v1): 😱 Keep Green"
-          arr[2]="febrd(v1): 👿 Keep Green"
-          arr[3]="febrd(v1): 🙏 Keep Green"
-          arr[4]="febrd(v1): 🙈 Keep Green"
-          arr[5]="febrd(v1): 🐐 Keep Green"
-          arr[6]="febrd(v1): 🤖 Keep Green"
-          arr[7]="febrd(v1): 🟩 Keep Green"
-          arr[8]="febrd(v1): 👻 Keep Green"
-          rand=$[$RANDOM % ${#arr[@]}]
+
+          arr=("febrd(v1): 😂 Keep Green"
+               "febrd(v1): 😱 Keep Green"
+               "febrd(v1): 👿 Keep Green"
+               "febrd(v1): 🙏 Keep Green"
+               "febrd(v1): 🙈 Keep Green"
+               "febrd(v1): 🐐 Keep Green"
+               "febrd(v1): 🤖 Keep Green"
+               "febrd(v1): 🟩 Keep Green"
+               "febrd(v1): 👻 Keep Green")
+
+          rand=$((RANDOM % ${#arr[@]}))
           git commit -m "${arr[$rand]}"
-      - name: GitHub Push
+
+      - name: Pull Latest Changes
+        if: env.changes_detected == 'true'
+        run: |
+          git pull origin master --rebase
+
+      - name: Push Changes
+        if: env.changes_detected == 'true'
         uses: ad-m/github-push-action@v0.6.0
         with:
           directory: "."
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
 ```
 
 ## 📌 Notes
