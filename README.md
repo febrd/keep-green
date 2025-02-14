@@ -22,7 +22,7 @@ name: Keep Green
 
 on:
   schedule:
-    - cron: "*/5 * * * *" # Menjalankan workflow setiap 2 menit
+    - cron: "*/5 * * * *"
   push:
     branches:
       - master
@@ -62,7 +62,7 @@ jobs:
         if: env.changes_detected == 'true'
         run: |
           git config --local user.email "your@email.domain"
-          git config --local user.name "yourgithubusername"
+          git config --local user.name "GithubUsername"
           git add -A
 
           arr=("febrd(v1): 😂 Keep Green"
@@ -81,15 +81,21 @@ jobs:
       - name: Pull Latest Changes
         if: env.changes_detected == 'true'
         run: |
-          git pull origin master --rebase
-
+          set +e 
+          git pull origin master --rebase || {
+            echo "Conflict detected, resolving..."
+            git checkout --ours KEEP_GREEN_LOG
+            git add KEEP_GREEN_LOG
+            git rebase --continue
+          }
+          set -e
+          
       - name: Push Changes
         if: env.changes_detected == 'true'
         uses: ad-m/github-push-action@v0.6.0
         with:
           directory: "."
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
 ```
 
 ## 📌 Notes
