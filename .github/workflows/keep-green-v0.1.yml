@@ -1,0 +1,53 @@
+name: Keep Green by Febrd
+
+on:
+
+  push:
+    branches:
+      - master
+      
+  schedule:
+  - cron: "*/5 * * * *"
+  - cron: "*/10 * * * *"
+  - cron: "0 7,9,11,14,15,18,20,21,22,23,0 * * *"
+jobs:
+  auto_commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: DEBUG 
+        run: echo "::debug::Ref = ${{github.ref}}"
+      - uses: actions/checkout@v3      
+        with:
+         persist-credentials: false
+         fetch-depth: 0
+
+      - name: Modify last update
+        run: |
+          d=`date '+%Y-%m-%dT%H:%M:%SZ'`
+          echo $d > KEEP_GREEN_LOG
+          
+      - name: Commit changes
+        run: |
+          git config --local user.email "febridirgantara17@gmail.com"
+          git config --local user.name "febrd"
+          git add -A
+          
+          arr[0]="febrd(v1): 😂 Keep Green"
+          arr[1]="febrd(v1): 😱 Keep Green"
+          arr[2]="febrd(v1): 👿 Keep Green"
+          arr[3]="febrd(v1): 🙏 Keep Green"
+          arr[4]="febrd(v1): 🙈 Keep Green"
+          arr[5]="febrd(v1): 🐐 Keep Green"
+          arr[6]="febrd(v1): 🤖 Keep Green"
+          arr[7]="febrd(v1): 🟩 Keep Green"
+          arr[8]="febrd(v1): 👻 Keep Green"
+          
+          rand=$[$RANDOM % ${#arr[@]}]
+          
+          git commit -m "${arr[$rand]}"
+          
+      - name: GitHub Push
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          directory: "."
+          github_token: ${{ secrets.GITHUB_TOKEN }}
