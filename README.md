@@ -8,7 +8,7 @@
 - **Practice CI/CD automation**: This repository can be used as a case study for automation using GitHub Actions.
 
 ## 🚀 How It Works
-1. **Trigger the workflow**: This workflow runs on every push to `master` and executes every minute via a cron job (`* * * * *`).
+1. **Trigger the workflow**: This workflow runs on every push to `master` and executes scheduled via a cron job.
 2. **Checkout repository**: Fetches the entire repository without credentials to avoid security conflicts.
 3. **Update log file**: The `KEEP_GREEN_LOG` file is updated with the latest timestamp.
 4. **Automatically commit changes**: A commit is made with a randomly selected message from a predefined list.
